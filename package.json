@@ -1,6 +1,6 @@
 {
   "name": "@exodus/react-native-safe-area-context",
-  "version": "5.2.0",
+  "version": "5.2.0-rc.0",
   "description": "A flexible way to handle safe area, also works on Android and web.",
   "main": "src/index.tsx",
   "module": "src/index.tsx",
