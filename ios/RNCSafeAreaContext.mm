@@ -78,10 +78,10 @@ RCT_EXPORT_MODULE()
     };
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if ([defaults objectForKey:kSafeAreaInitialMetricsKey] == nil) {
+    if (cachedMetrics == nil || ![windowMetrics isEqualToDictionary:cachedMetrics]) {
       [defaults setObject:windowMetrics forKey:kSafeAreaInitialMetricsKey];
       [defaults synchronize];
-      NSLog(@"RNCSafeAreaContext: cached initial window metrics to NSUserDefaults for the first time");
+      NSLog(@"RNCSafeAreaContext: saved initial window metrics");
     }
 
     constants = @{@"initialWindowMetrics" : windowMetrics};
