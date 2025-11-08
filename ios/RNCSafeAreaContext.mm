@@ -34,6 +34,7 @@ RCT_EXPORT_MODULE()
 - (NSDictionary *)getConstants
 {
   __block NSDictionary *constants;
+  static NSString *const kSafeAreaInitialMetricsKey = @"safe-area-context-initial-window-metrics";
 
   RCTUnsafeExecuteOnMainQueueSync(^{
 #if TARGET_OS_IPHONE
@@ -42,7 +43,17 @@ RCT_EXPORT_MODULE()
     NSWindow *window = RCTKeyWindow();
 #endif
     if (window == nil) {
-      constants = @{@"initialWindowMetrics" : [NSNull null]};
+      // Try to retrieve cached metrics from NSUserDefaults
+      NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+      NSDictionary *cachedMetrics = [defaults objectForKey:kSafeAreaInitialMetricsKey];
+
+      if (cachedMetrics != nil) {
+        NSLog(@"RNCSafeAreaContext: using cached initial window metrics from NSUserDefaults");
+        constants = @{@"initialWindowMetrics" : cachedMetrics};
+      } else {
+        NSLog(@"RNCSafeAreaContext: no cached metrics available");
+        constants = @{@"initialWindowMetrics" : [NSNull null]};
+      }
       return;
     }
 
@@ -52,21 +63,31 @@ RCT_EXPORT_MODULE()
     NSEdgeInsets safeAreaInsets = NSEdgeInsetsZero;
 #endif
 
+    NSDictionary *windowMetrics = @{
+      @"insets" : @{
+        @"top" : @(safeAreaInsets.top),
+        @"right" : @(safeAreaInsets.right),
+        @"bottom" : @(safeAreaInsets.bottom),
+        @"left" : @(safeAreaInsets.left),
+      },
+      @"frame" : @{
+        @"x" : @(window.frame.origin.x),
+        @"y" : @(window.frame.origin.y),
+        @"width" : @(window.frame.size.width),
+        @"height" : @(window.frame.size.height),
+      },
+    };
+
+    // Only cache the metrics if they haven't been cached before
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:kSafeAreaInitialMetricsKey] == nil) {
+      [defaults setObject:windowMetrics forKey:kSafeAreaInitialMetricsKey];
+      [defaults synchronize]; // Ensure it's persisted immediately
+      NSLog(@"RNCSafeAreaContext: cached initial window metrics to NSUserDefaults for the first time");
+    }
+
     constants = @{
-      @"initialWindowMetrics" : @{
-        @"insets" : @{
-          @"top" : @(safeAreaInsets.top),
-          @"right" : @(safeAreaInsets.right),
-          @"bottom" : @(safeAreaInsets.bottom),
-          @"left" : @(safeAreaInsets.left),
-        },
-        @"frame" : @{
-          @"x" : @(window.frame.origin.x),
-          @"y" : @(window.frame.origin.y),
-          @"width" : @(window.frame.size.width),
-          @"height" : @(window.frame.size.height),
-        },
-      }
+      @"initialWindowMetrics" : windowMetrics
     };
   });
 
