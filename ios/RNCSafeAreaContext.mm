@@ -84,9 +84,7 @@ RCT_EXPORT_MODULE()
       NSLog(@"RNCSafeAreaContext: cached initial window metrics to NSUserDefaults for the first time");
     }
 
-    constants = @{
-      @"initialWindowMetrics" : windowMetrics
-    };
+    constants = @{@"initialWindowMetrics" : windowMetrics};
   });
 
   return constants;
