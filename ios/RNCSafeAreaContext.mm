@@ -43,7 +43,6 @@ RCT_EXPORT_MODULE()
     NSWindow *window = RCTKeyWindow();
 #endif
     if (window == nil) {
-      // Try to retrieve cached metrics from NSUserDefaults
       NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
       NSDictionary *cachedMetrics = [defaults objectForKey:kSafeAreaInitialMetricsKey];
 
@@ -78,11 +77,10 @@ RCT_EXPORT_MODULE()
       },
     };
 
-    // Only cache the metrics if they haven't been cached before
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if ([defaults objectForKey:kSafeAreaInitialMetricsKey] == nil) {
       [defaults setObject:windowMetrics forKey:kSafeAreaInitialMetricsKey];
-      [defaults synchronize]; // Ensure it's persisted immediately
+      [defaults synchronize];
       NSLog(@"RNCSafeAreaContext: cached initial window metrics to NSUserDefaults for the first time");
     }
 
