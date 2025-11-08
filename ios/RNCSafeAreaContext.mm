@@ -78,6 +78,7 @@ RCT_EXPORT_MODULE()
     };
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary *cachedMetrics = [defaults objectForKey:kSafeAreaInitialMetricsKey];
     if (cachedMetrics == nil || ![windowMetrics isEqualToDictionary:cachedMetrics]) {
       [defaults setObject:windowMetrics forKey:kSafeAreaInitialMetricsKey];
       [defaults synchronize];
